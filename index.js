@@ -28,7 +28,16 @@ async function run() {
             const query = {};
             const cursor = allProductCollection.find(query);
             const products = await cursor.toArray();
-            res.send(products)
+            res.json(products)
+
+        })
+
+        app.get('/product/:id', async (req, res) => {
+            const { id } = req.params;
+            const query = { _id: ObjectId(id) };
+            const result = await allProductCollection.findOne(query);
+
+            res.json(result)
 
         })
 
@@ -38,7 +47,7 @@ async function run() {
             const addItems = req.body;
             console.log(addItems);
             const result = await addItemsCollection.insertOne(addItems);
-            res.send({ success: "add new item succsfully" })
+            res.json({ success: "add new item succsfully" })
 
 
         })
@@ -53,6 +62,44 @@ async function run() {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const result = await addItemsCollection.deleteOne(query);
+            res.send(result);
+        })
+
+        app.put('/restockQuantity/:id', async (req, res) => {
+            const data = req.body;
+
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) }
+            const result = await allProductCollection.findOne(filter);
+            const updatedQuantity = parseInt(result.quantity) + parseInt(data.quantity);
+            const data2 = { quantity: updatedQuantity }
+            const updateDoc = { $set: data2 };
+            const result2 = await allProductCollection.updateOne(filter, updateDoc);
+            res.json(result2);
+        });
+
+        app.put('/delivered/:id', async (req, res) => {
+
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) }
+            const result = await allProductCollection.findOne(filter);
+            if (result.quantity > 0) {
+                const updatedQuantity = parseInt(result.quantity) - 1;
+                const data2 = { quantity: updatedQuantity }
+                const updateDoc = { $set: data2 };
+                const result2 = await allProductCollection.updateOne(filter, updateDoc);
+                res.json(result2);
+            }
+            else {
+                res.json({ error: "quantity is decreases" });
+            }
+
+
+        });
+        app.delete('/manageItems/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await allProductCollection.deleteOne(query);
             res.send(result);
         })
 
