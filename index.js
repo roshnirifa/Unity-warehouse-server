@@ -20,7 +20,7 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 async function run() {
     try {
         await client.connect();
-        console.log('db connet');
+        console.log('db connect');
 
         const addItemsCollection = client.db("clothesWareHouse").collection("addItems");
         const allProductCollection = client.db("clothesWareHouse").collection("allProducts");
@@ -115,9 +115,12 @@ async function run() {
             res.send(result);
         })
 
-        app.post('/user', async (req, res) => {
+        app.get('/hero', async (req, res) => {
+            res.send("heroku")
 
         })
+
+
 
     } finally {
         //   await client.close();
