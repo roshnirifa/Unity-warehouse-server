@@ -11,26 +11,6 @@ app.use(cors());
 app.use(express.json());
 
 
-const validateToken = (req, res, next) => {
-    const accessToken = req.headers.authorization;
-    const spilitedToken = accessToken.spilt(' ')
-    const token = spilitedToken[2];
-
-    if (!token)
-        return res.status(400).json({ status: "User not Authenticated!" });
-
-    try {
-
-
-        req.user = validToken.user_id;
-        return next();
-
-
-    }
-    catch (err) {
-        return res.json({ status: err });
-    }
-};
 
 // Check the server
 
@@ -46,7 +26,7 @@ async function run() {
         const allProductCollection = client.db("clothesWareHouse").collection("allProducts");
 
         // all products POST
-        app.get('/products', validateToken, async (req, res) => {
+        app.get('/products', async (req, res) => {
 
             const query = {};
             const cursor = allProductCollection.find(query);
@@ -57,7 +37,7 @@ async function run() {
 
 
 
-        app.get('/product/:id', validateToken, async (req, res) => {
+        app.get('/product/:id', async (req, res) => {
             const { id } = req.params;
             const query = { _id: ObjectId(id) };
             const result = await allProductCollection.findOne(query);
@@ -68,7 +48,7 @@ async function run() {
 
         // add new items POST
 
-        app.post('/addItems', validateToken, async (req, res) => {
+        app.post('/addItems', async (req, res) => {
             const addItems = req.body;
             console.log(addItems);
             const result = await addItemsCollection.insertOne(addItems);
@@ -77,7 +57,7 @@ async function run() {
 
         })
 
-        app.get('/myItems/:email', validateToken, async (req, res) => {
+        app.get('/myItems/:email', async (req, res) => {
             const email = req.params.email;
             const query = { email: email };
             const cursor = addItemsCollection.find(query);
@@ -87,14 +67,14 @@ async function run() {
 
         })
         // delete myItems
-        app.delete('/myItems/:id', validateToken, async (req, res) => {
+        app.delete('/myItems/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const result = await addItemsCollection.deleteOne(query);
             res.send(result);
         })
 
-        app.put('/restockQuantity/:id', validateToken, async (req, res) => {
+        app.put('/restockQuantity/:id', async (req, res) => {
             const data = req.body;
 
             const id = req.params.id;
@@ -107,7 +87,7 @@ async function run() {
             res.json(result2);
         });
 
-        app.put('/delivered/:id', validateToken, async (req, res) => {
+        app.put('/delivered/:id', async (req, res) => {
 
             const id = req.params.id;
             const filter = { _id: ObjectId(id) }
@@ -135,6 +115,9 @@ async function run() {
             res.send(result);
         })
 
+        app.post('/user', async (req, res) => {
+
+        })
 
     } finally {
         //   await client.close();
